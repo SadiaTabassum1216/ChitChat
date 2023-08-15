@@ -27,47 +27,49 @@ class _SearchPageState extends State<SearchPage> {
   TextEditingController searchController = TextEditingController();
   Timer? _debounceTimer;
   List<UserModel> searchResults = [];
-
   @override
   void initState() {
     super.initState();
     searchController = TextEditingController();
+    searchController.addListener(() {
+      _debounceTimer?.cancel();
+      _performSearch();
+    });
   }
 
   void _performSearch() {
-    final searchText = searchController.text.trim();
+    final searchText = searchController.text.trim().toLowerCase();
 
-    void _performSearch() {
-      final searchText = searchController.text.trim();
-
-      if (_debounceTimer != null && _debounceTimer!.isActive) {
-        _debounceTimer!.cancel();
-      }
-
-      _debounceTimer = Timer(Duration(milliseconds: 500), () async {
-        if (searchText.isNotEmpty) {
-          QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-              .collection("users")
-              .where("fullName", isGreaterThanOrEqualTo: searchText)
-              .where("email", isNotEqualTo: widget.userModel.email)
-              .get();
-
-          List<UserModel> results = querySnapshot.docs.map((doc) {
-            Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
-            return UserModel.fromMap(userData);
-          }).toList();
-
-          setState(() {
-            searchResults = results;
-          });
-        } else {
-          setState(() {
-            searchResults.clear();
-          });
-        }
-      });
+    if (_debounceTimer != null && _debounceTimer!.isActive) {
+      _debounceTimer!.cancel();
     }
 
+    _debounceTimer = Timer(Duration(milliseconds: 500), () async {
+      if (searchText.isNotEmpty) {
+        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+            .collection("users")
+            .where("email", isNotEqualTo: widget.userModel.email)
+            .get();
+
+        List<UserModel> allUsers = querySnapshot.docs.map((doc) {
+          Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
+          return UserModel.fromMap(userData);
+        }).toList();
+
+        List<UserModel> filteredUsers = allUsers.where((user) {
+          String userEmailAddress = user.email!.toLowerCase();
+          return userEmailAddress.contains(searchText);
+        }).toList();
+
+        setState(() {
+          searchResults = filteredUsers;
+        });
+      } else {
+        setState(() {
+          searchResults.clear();
+        });
+      }
+    });
   }
 
   @override
@@ -87,10 +89,11 @@ class _SearchPageState extends State<SearchPage> {
 
     if (snapshot.docs.length > 0) {
       print("Chatroom exists");
-      var docData=snapshot.docs[0].data();
-      ChatRoomModel existingRoom= ChatRoomModel.fromMap(docData as Map<String, dynamic>);
+      var docData = snapshot.docs[0].data();
+      ChatRoomModel existingRoom =
+          ChatRoomModel.fromMap(docData as Map<String, dynamic>);
 
-      chatRoom=existingRoom;
+      chatRoom = existingRoom;
     } else {
       print("Chatroom does not exist");
       ChatRoomModel newRoom = ChatRoomModel(
@@ -100,8 +103,7 @@ class _SearchPageState extends State<SearchPage> {
             targetUser.uid.toString(): true
           },
           "",
-          DateTime.now()
-      );
+          DateTime.now());
 
       await FirebaseFirestore.instance
           .collection("chatRooms")
@@ -109,7 +111,7 @@ class _SearchPageState extends State<SearchPage> {
           .set(newRoom.toMap());
 
       print("New Chatroom");
-      chatRoom=newRoom;
+      chatRoom = newRoom;
     }
 
     return chatRoom;
@@ -130,103 +132,57 @@ class _SearchPageState extends State<SearchPage> {
               TextField(
                 textInputAction: TextInputAction.search,
                 controller: searchController,
-                onChanged: (value) {
-                  // _performSearch();
-                },
                 decoration: InputDecoration(
                   hintText: 'Search...',
                   prefixIcon: Icon(Icons.search),
                 ),
               ),
               SizedBox(height: 20),
-              // Expanded(
-              //   child: ListView.builder(
-              //     itemCount: searchResults.length,
-              //     itemBuilder: (context, index) {
-              //       return ListTile(
-              //         onTap: () async {
-              //           UserModel searchedUser = searchResults[index];
-              //           // Handle user tap
-              //         },
-              //         leading: CircleAvatar(
-              //           backgroundImage: NetworkImage(searchResults[index].profilePic!),
-              //         ),
-              //         title: Text(searchResults[index].fullName!),
-              //         subtitle: Text(searchResults[index].email!),
-              //         trailing: Icon(Icons.keyboard_arrow_right),
-              //       );
-              //     },
-              //   ),
-              // ),
-              CupertinoButton(
-                onPressed: () {
-                  setState(() {});
-                },
-                color: Theme.of(context).colorScheme.secondary,
-                child: Text("Search"),
-              ),
-              SizedBox(height: 20),
-              StreamBuilder(
-                  stream: FirebaseFirestore.instance
-                      .collection("users")
-                      .where("email", isEqualTo: searchController.text)
-                      .where("email", isNotEqualTo: widget.userModel.email)
-                      .snapshots(),
-                  builder: (context, snapShot) {
-                    if (snapShot.connectionState == ConnectionState.active) {
-                      if (snapShot.hasData) {
-                        QuerySnapshot dataSnapShot =
-                        snapShot.data as QuerySnapshot;
-
-                        if (dataSnapShot.docs.length > 0) {
-                          Map<String, dynamic> userData =
-                          dataSnapShot.docs[0].data() as Map<String, dynamic>;
-
-                          UserModel searchedUser = UserModel.fromMap(userData);
-                          return ListTile(
-                            onTap: () async{
-                              ChatRoomModel? chatRoom= await getRoom(searchedUser);
-                              if(chatRoom!=null){
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) {
-                                    return ChatRoomPage(
-                                      targetUser: searchedUser,
-                                      chatRoomModel: chatRoom,
-                                      userModel: widget.userModel,
-                                      firebaseUser: widget.firebaseUser,
-                                    );
-                                  }),
-                                );
-                              }
-
-                            },
-                            leading: CircleAvatar(
-                              backgroundImage:
-                              NetworkImage(searchedUser.profilePic!),
-                            ),
-                            title: Text(searchedUser.fullName!),
-                            subtitle: Text(searchedUser.email!),
-                            trailing: Icon(Icons.keyboard_arrow_right),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: searchResults.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      onTap: () async {
+                        UserModel searchedUser = searchResults[index];
+                        ChatRoomModel? chatRoom = await getRoom(searchedUser);
+                        if (chatRoom != null) {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) {
+                              return ChatRoomPage(
+                                targetUser: searchedUser,
+                                chatRoomModel: chatRoom,
+                                userModel: widget.userModel,
+                                firebaseUser: widget.firebaseUser,
+                              );
+                            }),
                           );
-                        } else {
-                          return Text("No result found");
                         }
-                      } else if (snapShot.hasError) {
-                        return Text("An error occurred.");
-                      } else {
-                        return Text("No result found");
-                      }
-                    } else {
-                      return CircularProgressIndicator();
-                    }
-                  }),
-
+                      },
+                      leading: CircleAvatar(
+                        backgroundImage:
+                            NetworkImage(searchResults[index].profilePic!),
+                      ),
+                      title: Text(searchResults[index].fullName!),
+                      subtitle: Text(searchResults[index].email!),
+                      trailing: Icon(Icons.keyboard_arrow_right),
+                    );
+                  },
+                ),
+              ),
+              // SizedBox(height: 20),
+              // CupertinoButton(
+              //   onPressed: () {
+              //     // You may not need this button, as the search updates continuously.
+              //   },
+              //   color: Theme.of(context).colorScheme.secondary,
+              //   child: Text("Search"),
+              // ),
             ],
           ),
-        )
-
+        ),
       ),
     );
   }
