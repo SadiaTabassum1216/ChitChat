@@ -23,6 +23,8 @@ dependencies:
   image_cropper: ^5.0.0
   datetime_picker_formfield_new: ^2.1.0
   uuid: ^3.0.7
+  encrypt: ^5.0.1
+  webcrypto: ^0.5.3
 
 #flutter_launcher_icons:
 #   android: "launcher_icon"

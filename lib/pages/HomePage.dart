@@ -139,8 +139,8 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   subtitle: (chatRoom.lastMessage.toString() != "")
                                       ? Text(chatRoom.lastMessage.toString())
-                                      : Text("Say hi to your new friend", style: TextStyle(
-                                  color: Theme.of(context).colorScheme.secondary,
+                                      : Text("Say hi to your new friend!", style: TextStyle(
+                                  color:  Colors.blue,
                                 ),),
 
                                 ),

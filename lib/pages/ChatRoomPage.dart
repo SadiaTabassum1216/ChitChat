@@ -1,8 +1,8 @@
 import 'package:chat/main.dart';
 import 'package:chat/models/MessageModel.dart';
+import 'package:chat/services/encryptions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/models/UserModel.dart';
 import 'package:chat/models/ChatRoomModel.dart';
@@ -13,6 +13,7 @@ class ChatRoomPage extends StatefulWidget {
   final ChatRoomModel chatRoomModel;
   final UserModel userModel;
   final User firebaseUser;
+
   const ChatRoomPage(
       {super.key,
       required this.targetUser,
@@ -27,24 +28,9 @@ class ChatRoomPage extends StatefulWidget {
 class _ChatRoomPageState extends State<ChatRoomPage> {
   TextEditingController messageController = TextEditingController();
 
-  bool isSameDate(DateTime? date1, DateTime? date2) {
-    return date1?.year == date2?.year &&
-        date1?.month == date2?.month &&
-        date1?.day == date2?.day;
-  }
-
-  String formatDate(DateTime? date) {
-    if (date == null) {
-      return 'Unknown Date';
-    }
-    final formatter = DateFormat('MM/dd/yyyy');
-    return formatter.format(date);
-  }
-
-
-
   void sendMessage() async {
-    String message = messageController.text.trim();
+     String message = (messageController.text.trim());
+    // String message = encryption.encryptAES(messageController.text.trim());
     messageController.clear();
 
     if (message != "") {
@@ -59,7 +45,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           .set(newText.toMap());
 
       widget.chatRoomModel.lastMessage = message;
-      widget.chatRoomModel.lastTextTime =  newText.created;
+      widget.chatRoomModel.lastTextTime = newText.created;
 
       FirebaseFirestore.instance
           .collection("chatRooms")
@@ -92,14 +78,15 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                     .collection("chatRooms")
                     .doc(widget.chatRoomModel.chatRoomId)
                     .collection("messages")
-                     .orderBy("created", descending: true)
+                    .orderBy("created", descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.active) {
                     if (snapshot.hasData) {
                       QuerySnapshot snap = snapshot.data as QuerySnapshot;
-                      List<MessageModel> messages = snap.docs.map((doc) =>
-                          MessageModel.fromMap(doc.data() as Map<String, dynamic>))
+                      List<MessageModel> messages = snap.docs
+                          .map((doc) => MessageModel.fromMap(
+                              doc.data() as Map<String, dynamic>))
                           .toList();
 
                       return ListView.builder(
@@ -107,33 +94,17 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                         itemCount: messages.length,
                         itemBuilder: (context, index) {
                           MessageModel currentMsg = messages[index];
-                          MessageModel? previousMsg =
-                          index > 0 ? messages[index - 1] : null;
+                          // String decryptedText=encryption.decryptAES(currentMsg.text);
 
-                          bool isCurrentUser = currentMsg.sender == widget.userModel.uid;
+                          bool isCurrentUser =
+                              currentMsg.sender == widget.userModel.uid;
+
 
                           return Column(
                             crossAxisAlignment: isCurrentUser
                                 ? CrossAxisAlignment.end
                                 : CrossAxisAlignment.start,
                             children: [
-                              if (previousMsg == null ||
-                                  !isSameDate(currentMsg.created, previousMsg.created))
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: Container(
-                                    margin: EdgeInsets.symmetric(vertical: 8),
-                                    padding: EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[300],
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      formatDate(currentMsg.created),
-                                      style: TextStyle(fontSize: 12, color: Colors.grey[700]),
-                                    ),
-                                  ),
-                                ),
                               Container(
                                 margin: EdgeInsets.symmetric(
                                   vertical: 4,
@@ -141,13 +112,17 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                 ),
                                 padding: EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: isCurrentUser ? Colors.blue : Colors.grey[300],
+                                  color: isCurrentUser
+                                      ? Colors.blue
+                                      : Colors.grey[300],
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
-                                  currentMsg.text.toString(),
+                                  currentMsg.text!,
                                   style: TextStyle(
-                                    color: isCurrentUser ? Colors.white : Colors.black,
+                                    color: isCurrentUser
+                                        ? Colors.white
+                                        : Colors.black,
                                   ),
                                 ),
                               ),
@@ -161,8 +136,14 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                       );
                     } else if (snapshot.data == null) {
                       return Center(
-                        child: Text("Say hi to your new friend!"),
+                        child: Text(
+                          "Say hi to your new friend!",
+                          style: TextStyle(
+                            color: Colors.blue,
+                          ),
+                        ),
                       );
+
                     } else {
                       return Center(
                         child: CircularProgressIndicator(),
@@ -204,7 +185,5 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         ),
       ),
     );
-
-
   }
 }
