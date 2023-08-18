@@ -25,13 +25,8 @@ dependencies:
   uuid: ^3.0.7
   encrypt: ^5.0.1
   webcrypto: ^0.5.3
-
-#flutter_launcher_icons:
-#   android: "launcher_icon"
-#   ios: true
-#   image_path: "images/chat.png"
-#   min_sdk_android: 21
-#   remove_alpha_ios: true
+  firebase_messaging: ^14.6.6
+  flutter_local_notifications: ^15.1.0+1
 
 dev_dependencies:
   flutter_test:

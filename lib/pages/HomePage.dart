@@ -158,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                 );
               } else if (snapshot.hasError) {
                 return Center(
-                  child: Text("An error Occurred"),
+                  child: Text("An error occurred."),
                 );
               } else {
                 return Center(

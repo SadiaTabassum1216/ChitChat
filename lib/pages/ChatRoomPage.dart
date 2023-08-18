@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/models/UserModel.dart';
 import 'package:chat/models/ChatRoomModel.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:intl/intl.dart';
 
 class ChatRoomPage extends StatefulWidget {
@@ -29,8 +30,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   TextEditingController messageController = TextEditingController();
 
   void sendMessage() async {
-     String message = (messageController.text.trim());
-    // String message = encryption.encryptAES(messageController.text.trim());
+    // String message = (messageController.text.trim());
+    String message = encryption.encryptAES(messageController.text.trim());
     messageController.clear();
 
     if (message != "") {
@@ -94,11 +95,12 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                         itemCount: messages.length,
                         itemBuilder: (context, index) {
                           MessageModel currentMsg = messages[index];
-                          // String decryptedText=encryption.decryptAES(currentMsg.text);
+                          var decryptedText =
+                              encryption.decryptAES(encrypt.Encrypted.fromBase64(currentMsg.text!));
+
 
                           bool isCurrentUser =
                               currentMsg.sender == widget.userModel.uid;
-
 
                           return Column(
                             crossAxisAlignment: isCurrentUser
@@ -118,7 +120,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
-                                  currentMsg.text!,
+                                  // currentMsg.text!,
+                                  decryptedText,
                                   style: TextStyle(
                                     color: isCurrentUser
                                         ? Colors.white
@@ -143,7 +146,6 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                           ),
                         ),
                       );
-
                     } else {
                       return Center(
                         child: CircularProgressIndicator(),
