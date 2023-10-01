@@ -30,8 +30,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   TextEditingController messageController = TextEditingController();
 
   void sendMessage() async {
-    // String message = (messageController.text.trim());
-    String message = encryption.encryptAES(messageController.text.trim());
+    String message = (messageController.text.trim());
+    // String message = encryption.encryptAES(messageController.text.trim());
     messageController.clear();
 
     if (message != "") {
@@ -97,7 +97,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                           MessageModel currentMsg = messages[index];
                           var decryptedText =
                               encryption.decryptAES(encrypt.Encrypted.fromBase64(currentMsg.text!));
-
+                          // var decryptedText= currentMsg.text;
 
                           bool isCurrentUser =
                               currentMsg.sender == widget.userModel.uid;
@@ -120,8 +120,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
-                                  // currentMsg.text!,
-                                  decryptedText,
+                                  currentMsg.text!,
+                                  // decryptedText,
                                   style: TextStyle(
                                     color: isCurrentUser
                                         ? Colors.white

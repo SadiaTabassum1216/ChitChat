@@ -174,9 +174,6 @@ class _SearchPageState extends State<SearchPage> {
               ),
               // SizedBox(height: 20),
               // CupertinoButton(
-              //   onPressed: () {
-              //     // You may not need this button, as the search updates continuously.
-              //   },
               //   color: Theme.of(context).colorScheme.secondary,
               //   child: Text("Search"),
               // ),
