@@ -42,6 +42,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           .collection("chatRooms")
           .doc(widget.chatRoomModel.chatRoomId)
           .collection("messages")
+
           .doc(newText.messageId)
           .set(newText.toMap());
 
@@ -95,9 +96,9 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                         itemCount: messages.length,
                         itemBuilder: (context, index) {
                           MessageModel currentMsg = messages[index];
-                          var decryptedText =
-                              encryption.decryptAES(encrypt.Encrypted.fromBase64(currentMsg.text!));
-                          // var decryptedText= currentMsg.text;
+                          // var decryptedText =
+                              // encryption.decryptAES(encrypt.Encrypted.fromBase64(currentMsg.text!));
+                            var decryptedText= currentMsg.text;
 
                           bool isCurrentUser =
                               currentMsg.sender == widget.userModel.uid;
@@ -127,6 +128,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                         ? Colors.white
                                         : Colors.black,
                                   ),
+
                                 ),
                               ),
                             ],

@@ -30,8 +30,8 @@ class _HomePageState extends State<HomePage> {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: CircleAvatar(
-            backgroundImage: NetworkImage(
-                widget.userModel.profilePic.toString()),
+            backgroundImage:
+                NetworkImage(widget.userModel.profilePic.toString()),
           ),
         ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
         child: StreamBuilder(
           stream: FirebaseFirestore.instance
               .collection("chatRooms")
-              .where("participants.${widget.userModel.uid}", isEqualTo: true)
+              // .where("participants.${widget.userModel.uid}", isEqualTo: true)
               // .orderBy("lastTextTime", descending: true)
               .snapshots(),
           builder: (context, snapshot) {
@@ -110,8 +110,8 @@ class _HomePageState extends State<HomePage> {
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.grey.withOpacity(0.5),
-                                        spreadRadius: 2,
-                                       // blurRadius: 5,
+                                      spreadRadius: 2,
+                                      // blurRadius: 5,
                                       // offset: Offset(0, 0), // changes position of shadow
                                     ),
                                   ],
@@ -137,12 +137,29 @@ class _HomePageState extends State<HomePage> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  subtitle: (chatRoom.lastMessage.toString() != "")
-                                      ? Text(chatRoom.lastMessage.toString())
-                                      : Text("Say hi to your new friend!", style: TextStyle(
-                                  color:  Colors.blue,
-                                ),),
-
+                                  subtitle: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        chatRoom.lastMessage.toString() != ""
+                                            ? chatRoom.lastMessage.toString()
+                                            : "Say hi to your new friend!",
+                                        style: TextStyle(
+                                          color: chatRoom.lastMessage.toString() == ""
+                                              ? Colors.blue
+                                              : Colors.black,
+                                        ),
+                                      ),
+                                      if (chatRoom.lastTextTime != null && chatRoom.lastMessage.toString() != "")
+                                        Text(
+                                          chatRoom.lastTextTime.toString(),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
