@@ -7,7 +7,7 @@ Make sure you have the Flutter SDK installed on your system.
 
 **Installation**
 
-Clone the repository: `git clone https://github.com/yourusername/chitchat.git`
+Clone the repository: `git clone https://github.com/SadiaTabassum1216/ChitChat`
 
 Navigate to the project directory: `cd chitchat`
 
