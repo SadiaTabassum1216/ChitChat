@@ -28,10 +28,11 @@ apply plugin: 'com.google.gms.google-services'
 
 android {
     namespace "com.example.chat"
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -43,7 +44,7 @@ android {
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         // minSdkVersion flutter.minSdkVersion
         minSdkVersion 21
-         targetSdkVersion 33
+        targetSdkVersion 34
         // targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -56,6 +57,10 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
 }
 
 flutter {

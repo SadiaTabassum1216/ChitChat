@@ -1,12 +1,15 @@
 import 'package:chat/main.dart';
 import 'package:chat/models/MessageModel.dart';
 import 'package:chat/services/encryptions.dart';
+import 'package:chat/services/notificatonManager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/models/UserModel.dart';
 import 'package:chat/models/ChatRoomModel.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 
 class ChatRoomPage extends StatefulWidget {
@@ -27,6 +30,7 @@ class ChatRoomPage extends StatefulWidget {
 }
 
 class _ChatRoomPageState extends State<ChatRoomPage> {
+
   TextEditingController messageController = TextEditingController();
 
   void sendMessage() async {
@@ -90,6 +94,14 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                           .map((doc) => MessageModel.fromMap(
                               doc.data() as Map<String, dynamic>))
                           .toList();
+
+                      for(var message in messages) {
+                        if(message.seen == false) {
+                          print("All the messages: ${message.seen}");
+                          NotificationManager.createNotification(id: 1, title: "this is a title", body: 'This is a body', locked: false, channel_name: 'message channel');
+                          message.seen = true;
+                        }
+                      }
 
                       return ListView.builder(
                         reverse: true,

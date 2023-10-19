@@ -4,6 +4,7 @@ import 'package:chat/pages/CompleteProfile.dart';
 import 'package:chat/pages/HomePage.dart';
 import 'package:chat/pages/Login.dart';
 import 'package:chat/pages/SignUp.dart';
+import 'package:chat/services/notificatonManager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ var uuid = Uuid();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  NotificationManager.initialize();
 
   User? current = FirebaseAuth.instance.currentUser;
 
