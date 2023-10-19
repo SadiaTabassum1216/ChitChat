@@ -75,19 +75,33 @@ class _HomePageState extends State<HomePage> {
         child: StreamBuilder(
           stream: FirebaseFirestore.instance
               .collection("chatRooms")
-              // .where("participants.${widget.userModel.uid}", isEqualTo: true)
-              // .orderBy("lastTextTime", descending: true)
+              .where("participants.${widget.userModel.uid}", isEqualTo: true)
               .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.active) {
               if (snapshot.hasData) {
                 QuerySnapshot snap = snapshot.data as QuerySnapshot;
 
+                var chatRoomData = snap.docs;
+
+                chatRoomData.sort((a, b) {
+                  // Extract the lastTextTime field from both documents
+                  var chatRoomA = a.data() as Map<String, dynamic>;
+                  var chatRoomB = b.data() as Map<String, dynamic>;
+                  var lastTextTimeA = chatRoomA["lastTextTime"];
+                  var lastTextTimeB = chatRoomB["lastTextTime"];
+                  
+                  print("DateTime: ${lastTextTimeA.compareTo(lastTextTimeB)}");
+
+                  // Compare the timestamps, assuming they are DateTime objects
+                  return lastTextTimeB.compareTo(lastTextTimeA);
+                });
+
                 return ListView.builder(
-                  itemCount: snap.docs.length,
+                  itemCount: chatRoomData.length,
                   itemBuilder: (context, index) {
                     ChatRoomModel chatRoom = ChatRoomModel.fromMap(
-                        snap.docs[index].data() as Map<String, dynamic>);
+                        chatRoomData[index].data() as Map<String, dynamic>);
 
                     Map<String, dynamic> participants = chatRoom.participants!;
 
