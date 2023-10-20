@@ -39,17 +39,19 @@ class _HomePageState extends State<HomePage> {
         var message = chatRoomMessage.data();
         print(chatRoomMessage['text']);
         var sender = message['sender'];
-        if (sender != widget.userModel.uid) {
+        if (sender != widget.userModel.uid && chatRoomMessage['seen'] == false) {
           notificationBody =
               notificationBody + chatRoomMessage['text'] + '<br>';
 
           NotificationManager.createNotification(
-              id: chatRoomMessage['notificationID'],
+              id: chatRoom.notificationId,
               title: 'This is a title',
               body: notificationBody,
               locked: false,
               channel_name: 'message channel');
         }
+        
+
       }
     } catch (e) {
       // Handle any errors that may occur.
@@ -142,7 +144,7 @@ class _HomePageState extends State<HomePage> {
 
                     List<String> participantKeys = participants.keys.toList();
 
-                    if (chatRoom.isNotificationSent == true) {
+                    if (chatRoom.isNotificationSent == false) {
                       sendNotification(chatRoom);
                     }
 
