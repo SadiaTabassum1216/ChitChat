@@ -3,11 +3,13 @@ import 'package:chat/models/fireBaseHelper.dart';
 import 'package:chat/pages/ChatRoomPage.dart';
 import 'package:chat/pages/Login.dart';
 import 'package:chat/pages/SearchPage.dart';
+import 'package:chat/services/notificatonManager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/models/UserModel.dart';
+import 'dart:math';
 
 import '../models/MessageModel.dart';
 
@@ -22,6 +24,41 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  void sendNotification(chatRoom) async {
+    try {
+      var chatRoomMessages = await FirebaseFirestore.instance
+          .collection('chatRooms')
+          .doc(chatRoom.chatRoomId)
+          .collection('messages')
+          .orderBy("created", descending: true)
+          .get();
+
+      String notificationBody = '';
+
+      for (var chatRoomMessage in chatRoomMessages.docs) {
+        var message = chatRoomMessage.data();
+        print(chatRoomMessage['text']);
+        var sender = message['sender'];
+        if (sender != widget.userModel.uid) {
+          notificationBody =
+              notificationBody + chatRoomMessage['text'] + '<br>';
+
+          NotificationManager.createNotification(
+              id: chatRoomMessage['notificationID'],
+              title: 'This is a title',
+              body: notificationBody,
+              locked: false,
+              channel_name: 'message channel');
+        }
+      }
+    } catch (e) {
+      // Handle any errors that may occur.
+      print('Error getting chat room messages: $e');
+      // You may want to return an appropriate value or re-throw the error here.
+      throw e;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,8 +127,6 @@ class _HomePageState extends State<HomePage> {
                   var chatRoomB = b.data() as Map<String, dynamic>;
                   var lastTextTimeA = chatRoomA["lastTextTime"];
                   var lastTextTimeB = chatRoomB["lastTextTime"];
-                  
-                  print("DateTime: ${lastTextTimeA.compareTo(lastTextTimeB)}");
 
                   // Compare the timestamps, assuming they are DateTime objects
                   return lastTextTimeB.compareTo(lastTextTimeA);
@@ -107,12 +142,9 @@ class _HomePageState extends State<HomePage> {
 
                     List<String> participantKeys = participants.keys.toList();
 
-
-
-                    //Message filter korbo using unseen.
-                    //receiver khuje ber korbo.
-                    //logged in user er sathe reciever milabo.
-                    //different chatroom er jonno different notification create hobe.
+                    if (chatRoom.isNotificationSent == true) {
+                      sendNotification(chatRoom);
+                    }
 
                     participantKeys.remove(widget.userModel.uid);
 
@@ -159,25 +191,27 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ),
                                   subtitle: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         chatRoom.lastMessage.toString() != ""
                                             ? chatRoom.lastMessage.toString()
                                             : "Say hi to your new friend!",
                                         style: TextStyle(
-                                          color: chatRoom.lastMessage.toString() == ""
-                                              ? Colors.blue
-                                              : Colors.black,
+                                          color:
+                                              chatRoom.lastMessage.toString() ==
+                                                      ""
+                                                  ? Colors.blue
+                                                  : Colors.black,
                                         ),
                                       ),
-                                      if (chatRoom.lastTextTime != null && chatRoom.lastMessage.toString() != "")
+                                      if (chatRoom.lastTextTime != null &&
+                                          chatRoom.lastMessage.toString() != "")
                                         Text(
                                           chatRoom.lastTextTime.toString(),
                                           style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey
-                                          ),
+                                              fontSize: 12, color: Colors.grey),
                                         ),
                                     ],
                                   ),

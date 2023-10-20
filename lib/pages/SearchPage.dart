@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:chat/models/UserModel.dart';
 import 'package:chat/pages/ChatRoomPage.dart';
@@ -27,6 +28,8 @@ class _SearchPageState extends State<SearchPage> {
   TextEditingController searchController = TextEditingController();
   Timer? _debounceTimer;
   List<UserModel> searchResults = [];
+  Random random = Random();
+
   @override
   void initState() {
     super.initState();
@@ -104,7 +107,8 @@ class _SearchPageState extends State<SearchPage> {
           },
           "",
           DateTime.now(),
-          false);
+          true,
+          random.nextInt(1000000));
 
       await FirebaseFirestore.instance
           .collection("chatRooms")

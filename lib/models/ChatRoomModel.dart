@@ -4,8 +4,9 @@ class ChatRoomModel {
   String? lastMessage;
   DateTime? lastTextTime;
   bool? isNotificationSent;
+  int? notificationId;
 
-  ChatRoomModel(this.chatRoomId, this.participants, this.lastMessage , this.lastTextTime, this.isNotificationSent);
+  ChatRoomModel(this.chatRoomId, this.participants, this.lastMessage , this.lastTextTime, this.isNotificationSent, this.notificationId);
 
   ChatRoomModel.fromMap(Map<String, dynamic> map) {
     chatRoomId = map["chatRoomId"];
@@ -13,6 +14,7 @@ class ChatRoomModel {
     lastMessage = map["lastMessage"];
     lastTextTime = map["lastTextTime"].toDate();
     isNotificationSent= map["isNotificationSent"];
+    notificationId= map['notificationId'];
   }
 
   Map<String, dynamic> toMap() {
@@ -22,6 +24,7 @@ class ChatRoomModel {
       "lastMessage": lastMessage,
       "lastTextTime": lastTextTime,
       "isNotificationSent": isNotificationSent,
+      "notificationId": notificationId,
     };
   }
 }
