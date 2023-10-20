@@ -107,6 +107,13 @@ class _HomePageState extends State<HomePage> {
 
                     List<String> participantKeys = participants.keys.toList();
 
+
+
+                    //Message filter korbo using unseen.
+                    //receiver khuje ber korbo.
+                    //logged in user er sathe reciever milabo.
+                    //different chatroom er jonno different notification create hobe.
+
                     participantKeys.remove(widget.userModel.uid);
 
                     return FutureBuilder(

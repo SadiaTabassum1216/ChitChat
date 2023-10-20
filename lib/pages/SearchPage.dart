@@ -103,7 +103,8 @@ class _SearchPageState extends State<SearchPage> {
             targetUser.uid.toString(): true
           },
           "",
-          DateTime.now());
+          DateTime.now(),
+          false);
 
       await FirebaseFirestore.instance
           .collection("chatRooms")

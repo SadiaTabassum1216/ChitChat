@@ -30,7 +30,6 @@ class ChatRoomPage extends StatefulWidget {
 }
 
 class _ChatRoomPageState extends State<ChatRoomPage> {
-
   TextEditingController messageController = TextEditingController();
 
   void sendMessage() async {
@@ -46,7 +45,6 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           .collection("chatRooms")
           .doc(widget.chatRoomModel.chatRoomId)
           .collection("messages")
-
           .doc(newText.messageId)
           .set(newText.toMap());
 
@@ -57,6 +55,17 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           .collection("chatRooms")
           .doc(widget.chatRoomModel.chatRoomId)
           .set(widget.chatRoomModel.toMap());
+    }
+  }
+
+  void updateMessages(messages) async {
+    for (var message in messages) {
+      FirebaseFirestore.instance
+          .collection("chatRooms")
+          .doc(widget.chatRoomModel.chatRoomId)
+          .collection("messages")
+          .doc(message.messageId)
+          .set(message.toMap());
     }
   }
 
@@ -95,13 +104,13 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                               doc.data() as Map<String, dynamic>))
                           .toList();
 
-                      for(var message in messages) {
-                        if(message.seen == false) {
-                          print("All the messages: ${message.seen}");
-                          NotificationManager.createNotification(id: 1, title: "this is a title", body: 'This is a body', locked: false, channel_name: 'message channel');
+                      for (var message in messages) {
+                        if (message.seen == false && message.sender != widget.userModel.uid) {
                           message.seen = true;
                         }
                       }
+
+                      updateMessages(messages);
 
                       return ListView.builder(
                         reverse: true,
@@ -109,8 +118,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                         itemBuilder: (context, index) {
                           MessageModel currentMsg = messages[index];
                           // var decryptedText =
-                              // encryption.decryptAES(encrypt.Encrypted.fromBase64(currentMsg.text!));
-                            var decryptedText= currentMsg.text;
+                          // encryption.decryptAES(encrypt.Encrypted.fromBase64(currentMsg.text!));
+                          var decryptedText = currentMsg.text;
 
                           bool isCurrentUser =
                               currentMsg.sender == widget.userModel.uid;
@@ -140,7 +149,6 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                         ? Colors.white
                                         : Colors.black,
                                   ),
-
                                 ),
                               ),
                             ],
