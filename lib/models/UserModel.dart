@@ -1,6 +1,7 @@
 class UserModel {
   String? uid;
   String? fullName;
+  String? dob;
   String? email;
   String? profilePic;
 
@@ -9,6 +10,7 @@ class UserModel {
   UserModel.fromMap(Map<String, dynamic> map) {
     uid = map["uid"];
     fullName = map["fullName"];
+    dob =map["dob"];
     email = map["email"];
     profilePic = map["profilePic"];
   }
@@ -17,6 +19,7 @@ class UserModel {
     return {
       "uid": uid,
       "fullName": fullName,
+      "dob":dob,
       "email": email,
       "profilePic": profilePic,
     };

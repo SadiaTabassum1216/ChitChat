@@ -26,6 +26,7 @@ class CompleteProfile extends StatefulWidget {
 class _CompleteProfileState extends State<CompleteProfile> {
   File? imageFile;
   TextEditingController nameController = TextEditingController();
+  TextEditingController dobController = TextEditingController();
 
   void selectImage(ImageSource source) async {
     XFile? pickedFile = await ImagePicker().pickImage(source: source);
@@ -101,8 +102,10 @@ class _CompleteProfileState extends State<CompleteProfile> {
     TaskSnapshot snapshot = await uploadTask;
     String url = await snapshot.ref.getDownloadURL();
     String fullName = nameController.text.trim();
+    String dob = dobController.text.trim();
 
     widget.userModel.fullName = fullName;
+    widget.userModel.dob = dob;
     widget.userModel.profilePic = url;
 
     await FirebaseFirestore.instance
@@ -165,6 +168,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
               ),
               DateTimeField(
                 format: DateFormat('yyyy-MM-dd'),
+                controller: dobController,
                 decoration: InputDecoration(labelText: "Date of Birth"),
                 onShowPicker: (context, currentValue) {
                   return showDatePicker(
