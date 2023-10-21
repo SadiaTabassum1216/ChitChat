@@ -107,7 +107,7 @@ class _SearchPageState extends State<SearchPage> {
           },
           "",
           DateTime.now(),
-          false,
+          true,
           random.nextInt(1000000));
 
       await FirebaseFirestore.instance

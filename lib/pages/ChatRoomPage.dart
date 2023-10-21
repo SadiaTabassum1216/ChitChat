@@ -50,8 +50,10 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
 
       widget.chatRoomModel.lastMessage = message;
       widget.chatRoomModel.lastTextTime = newText.created;
+      widget.chatRoomModel.isNotificationSent =
+          false; //update isNotificationSent ->true
 
-      FirebaseFirestore.instance
+      await FirebaseFirestore.instance
           .collection("chatRooms")
           .doc(widget.chatRoomModel.chatRoomId)
           .set(widget.chatRoomModel.toMap());
@@ -105,7 +107,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                           .toList();
 
                       for (var message in messages) {
-                        if (message.seen == false && message.sender != widget.userModel.uid) {
+                        if (message.seen == false &&
+                            message.sender != widget.userModel.uid) {
                           message.seen = true;
                         }
                       }

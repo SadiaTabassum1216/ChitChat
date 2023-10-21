@@ -39,7 +39,9 @@ class _HomePageState extends State<HomePage> {
         var message = chatRoomMessage.data();
         print(chatRoomMessage['text']);
         var sender = message['sender'];
-        if (sender != widget.userModel.uid && chatRoomMessage['seen'] == false) {
+        if (sender != widget.userModel.uid &&
+            chatRoomMessage['isNotificationSent'] == false) {
+          print("In the notification.....");
           notificationBody =
               notificationBody + chatRoomMessage['text'] + '<br>';
 
@@ -49,9 +51,16 @@ class _HomePageState extends State<HomePage> {
               body: notificationBody,
               locked: false,
               channel_name: 'message channel');
+        } else {
+          print("No notification is sending....");
         }
-        
 
+        //update isNotificationSent ->false
+        chatRoom.isNotificationSent = true;
+        await FirebaseFirestore.instance
+            .collection("chatRooms")
+            .doc(chatRoom.chatRoomId)
+            .set(chatRoom.toMap());
       }
     } catch (e) {
       // Handle any errors that may occur.
@@ -247,11 +256,11 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       )),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 15.0),
-        child: FloatingActionButton(
-            onPressed: () {}, child: Icon(Icons.add_comment_rounded)),
-      ),
+      // floatingActionButton: Padding(
+      //   padding: const EdgeInsets.only(bottom: 15.0),
+      //   child: FloatingActionButton(
+      //       onPressed: () {}, child: Icon(Icons.add_comment_rounded)),
+      // ),
     );
   }
 }
