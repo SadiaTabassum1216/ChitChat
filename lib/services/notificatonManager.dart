@@ -42,7 +42,6 @@ class NotificationManager {
           onlyAlertOnce: false,
           enableVibration: true,
           importance: NotificationImportance.High,
-          soundSource: 'default',
         ),
       ],
     );

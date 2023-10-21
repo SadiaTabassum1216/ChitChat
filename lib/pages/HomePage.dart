@@ -52,15 +52,15 @@ class _HomePageState extends State<HomePage> {
           notificationSent = true;
           break;
         }
+      }
 
-        //update isNotificationSent ->false
-        if (notificationSent) {
-          chatRoom.isNotificationSent = true;
-          await FirebaseFirestore.instance
-              .collection("chatRooms")
-              .doc(chatRoom.chatRoomId)
-              .set(chatRoom.toMap());
-        }
+      //update isNotificationSent ->false
+      if (notificationSent) {
+        chatRoom.isNotificationSent = true;
+        await FirebaseFirestore.instance
+            .collection("chatRooms")
+            .doc(chatRoom.chatRoomId)
+            .set(chatRoom.toMap());
       }
     } catch (e) {
       // Handle any errors that may occur.
