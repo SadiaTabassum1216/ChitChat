@@ -9,9 +9,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/models/UserModel.dart';
-import 'dart:math';
-
-import '../models/MessageModel.dart';
 
 class HomePage extends StatefulWidget {
   final UserModel userModel;
@@ -35,32 +32,35 @@ class _HomePageState extends State<HomePage> {
 
       String notificationBody = '';
 
+      bool notificationSent = false;
+
       for (var chatRoomMessage in chatRoomMessages.docs) {
         var message = chatRoomMessage.data();
-        print(chatRoomMessage['text']);
         var sender = message['sender'];
         if (sender != widget.userModel.uid &&
-            chatRoomMessage['isNotificationSent'] == false) {
-          print("In the notification.....");
+            chatRoomMessage['seen'] == false) {
           notificationBody =
               notificationBody + chatRoomMessage['text'] + '<br>';
 
           NotificationManager.createNotification(
               id: chatRoom.notificationId,
-              title: 'This is a title',
+              title: '${widget.userModel.fullName}',
               body: notificationBody,
               locked: false,
               channel_name: 'message channel');
-        } else {
-          print("No notification is sending....");
+
+          notificationSent = true;
+          break;
         }
 
         //update isNotificationSent ->false
-        chatRoom.isNotificationSent = true;
-        await FirebaseFirestore.instance
-            .collection("chatRooms")
-            .doc(chatRoom.chatRoomId)
-            .set(chatRoom.toMap());
+        if (notificationSent) {
+          chatRoom.isNotificationSent = true;
+          await FirebaseFirestore.instance
+              .collection("chatRooms")
+              .doc(chatRoom.chatRoomId)
+              .set(chatRoom.toMap());
+        }
       }
     } catch (e) {
       // Handle any errors that may occur.

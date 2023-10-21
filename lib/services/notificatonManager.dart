@@ -36,12 +36,13 @@ class NotificationManager {
           channelDescription:
               'When a new message appears, it will push notification for that.',
           defaultColor: Colors.green,
-          playSound: false,
+          playSound: true,
           channelShowBadge: true,
           ledColor: Colors.white,
-          onlyAlertOnce: true,
-          enableVibration: false,
+          onlyAlertOnce: false,
+          enableVibration: true,
           importance: NotificationImportance.High,
+          soundSource: 'default',
         ),
       ],
     );
