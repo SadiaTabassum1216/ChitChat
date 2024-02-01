@@ -37,6 +37,10 @@ class _HomePageState extends State<HomePage> {
       for (var chatRoomMessage in chatRoomMessages.docs) {
         var message = chatRoomMessage.data();
         var sender = message['sender'];
+        Map<String, dynamic> participants = chatRoom.participants!;
+        List participantValues = participants.values.toList();
+        participantValues.remove(widget.userModel.uid);
+
         if (sender != widget.userModel.uid &&
             chatRoomMessage['seen'] == false) {
           notificationBody =
@@ -44,7 +48,9 @@ class _HomePageState extends State<HomePage> {
 
           NotificationManager.createNotification(
               id: chatRoom.notificationId,
-              title: '${widget.userModel.fullName}',
+              // title: '${widget.userModel.fullName}',
+              title: participantValues.first.fullname,
+              // title: participantValues[0].fullName,
               body: notificationBody,
               locked: false,
               channel_name: 'message channel');
@@ -152,12 +158,11 @@ class _HomePageState extends State<HomePage> {
                     Map<String, dynamic> participants = chatRoom.participants!;
 
                     List<String> participantKeys = participants.keys.toList();
+                    participantKeys.remove(widget.userModel.uid);
 
                     if (chatRoom.isNotificationSent == false) {
                       sendNotification(chatRoom);
                     }
-
-                    participantKeys.remove(widget.userModel.uid);
 
                     return FutureBuilder(
                       future: FireBaseHelper.getUserById(participantKeys[0]),

@@ -8,9 +8,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/models/UserModel.dart';
 import 'package:chat/models/ChatRoomModel.dart';
-import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 class ChatRoomPage extends StatefulWidget {
   final UserModel targetUser;
@@ -31,9 +31,35 @@ class ChatRoomPage extends StatefulWidget {
 
 class _ChatRoomPageState extends State<ChatRoomPage> {
   TextEditingController messageController = TextEditingController();
+  bool _isRecording = false;
+  String text = '';
+  String convertedText='';
+  SpeechToText speechToText = SpeechToText();
 
-  void sendMessage() async {
-    String message = (messageController.text.trim());
+  Future<void> _startRecording() async {
+    var available = await speechToText.initialize();
+    if (available) {
+      _isRecording = true;
+      speechToText.listen(onResult: (result) {
+        setState(() {
+          text = result.recognizedWords;
+        });
+      });
+    }
+  }
+
+  _stopRecording() async {
+    setState(() {
+      _isRecording = false;
+    });
+    speechToText.stop();
+    convertedText=text;
+    sendMessage(convertedText);
+  }
+
+
+  void sendMessage(String text) async {
+    String message = text;
     // String message = encryption.encryptAES(messageController.text.trim());
     messageController.clear();
 
@@ -188,7 +214,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               color: Colors.grey[200],
               padding: EdgeInsets.all(8.0),
               child: Row(
-                children: [
+                children: <Widget>[
                   Expanded(
                     child: TextField(
                       controller: messageController,
@@ -200,11 +226,30 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                     ),
                   ),
                   IconButton(
+                    icon: Icon(
+                      _isRecording ? Icons.fiber_manual_record : Icons.mic_none,
+                      color: Colors.red,
+                      size: 30.0,
+                    ),
+                    onPressed: () async {
+                      if (_isRecording) {
+                        await _stopRecording();
+                      } else {
+                        await _startRecording();
+
+                        // await Future.delayed(const Duration(seconds: 10));
+                        // await _stopRecording();
+                      }
+                    },
+                    // child: Text(_isRecording ? 'Recording...' : 'Tap to Speak'),
+                  ),
+                  IconButton(
                     icon: Icon(Icons.send),
                     onPressed: () {
-                      sendMessage();
+                      sendMessage(messageController.text.trim());
                     },
                   ),
+
                 ],
               ),
             ),

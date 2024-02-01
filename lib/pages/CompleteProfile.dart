@@ -105,7 +105,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
     String dob = dobController.text.trim();
 
     widget.userModel.fullName = fullName;
-    widget.userModel.dob = dob;
+    // widget.userModel.dob = dob;
     widget.userModel.profilePic = url;
 
     await FirebaseFirestore.instance
