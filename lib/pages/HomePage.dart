@@ -50,7 +50,6 @@ class _HomePageState extends State<HomePage> {
               id: chatRoom.notificationId,
               // title: '${widget.userModel.fullName}',
               title: participantValues.first.fullname,
-              // title: participantValues[0].fullName,
               body: notificationBody,
               locked: false,
               channel_name: 'message channel');
